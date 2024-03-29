@@ -1,10 +1,11 @@
 import React from "react";
 import { getRandomUser } from "../Utility/api";
+import Instructor from "./Instructor";
 
 class CycleOPediaClassComp extends React.Component{
     constructor(props){
         super(props);
-        this.state ={
+        this.state = JSON.parse(localStorage.getItem("cylcopediaState")) || {
             instructor: undefined,
             studentList: [],
             studentCount: 0,
@@ -16,6 +17,10 @@ class CycleOPediaClassComp extends React.Component{
 
     componentDidMount= async()=>{
         console.log("Component Did Mount");
+        if(JSON.parse(localStorage.getItem("cylcopediaState"))){
+          //  this.setState(JSON.parse(localStorage.getItem("cylcopediaState")));
+        }
+        else{
         const response = await getRandomUser();
         console.log(response);
 
@@ -28,17 +33,19 @@ class CycleOPediaClassComp extends React.Component{
                 },
             };
         });
+    }
     };
 
     componentDidUpdate(){
         console.log("Component Did Update");
+        localStorage.setItem("cylcopediaState", JSON.stringify(this.state));
     }
 
     componentWillUnmount(){
         console.log("Component Will UnMount");
     }
 
-    handleAllStudent = () =>{
+    handleAddStudent = () =>{
         this.setState((prevState) => {
             return {
                 studentCount: prevState.studentCount +1,
@@ -56,17 +63,16 @@ class CycleOPediaClassComp extends React.Component{
 
     render(){
         console.log("render component");
-        return(<div>
-            {this.state.instructor && (
-                <div className="p-3">
-                    <span className="h4 text-success">Instructor</span>
-                    <i className="bi bi-toggle-off btn btn-success btn-sm"></i> 
-                    <br/>
-                    Name:{this.state.instructor.name} <br />
-                    Email: {this.state.instructor.email} <br />
-                    Phone: {this.state.instructor.email} <br />
-                    </div>
-            )}
+        return(
+        <div>
+            <div className="p-3">
+            <span className="h4 text-success">Instructor</span>
+                <i className="bi bi-toggle-off btn btn-success btn-sm"></i>
+                {!this.state.hideInstructor ? (
+                <Instructor instructor={this.state.instructor} />
+            ): null}
+            </div>
+            
             <div className="p-3">
                 <span className="h4 text-success">Feedback</span>
                 <br />
@@ -80,7 +86,7 @@ class CycleOPediaClassComp extends React.Component{
             <div className="p-3">
                 <span className="h4 text-success">Students</span><br />
                 <div>Student Count: {this.state.studentCount}</div>
-                <button className="btn btn-success btn-sm" onClick={this.handleAllStudent}>Add Student</button>
+                <button className="btn btn-success btn-sm" onClick={this.handleAddStudent}>Add Student</button>
                 &nbsp;
                 <button className="btn btn-danger btn-sm" onClick={this.handleRemoveAllStudent}>Remove All Student</button>
             </div>
